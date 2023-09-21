@@ -15,10 +15,14 @@ fn main() {
         if args.len() > 2 {
           let task_description = args[2..].join(" ");
 
-          to_do_list.add_task(&task_description);
-          to_do_list.save_tasks();
+          if !to_do_list.task_exists(&task_description) {
+            to_do_list.add_task(&task_description);
+            to_do_list.save_tasks();
 
-          println!("Task added: {}", task_description);
+            println!("Task added: {}", task_description);
+          } else {
+            println!("This task already exists: {}", task_description);
+          }
         } else {
           println!("Please provide a task description.");
         }
@@ -86,6 +90,10 @@ impl ToDoList {
     if let Err(err) = fs::write(&path, self.tasks.join("\n")) {
       eprintln!("Error saving tasks: {}", err);
     }
+  }
+
+  fn task_exists(&self, task: &str) -> bool {
+    self.tasks.iter().any(|existing_task| existing_task == task)
   }
 
   fn add_task(&mut self, task: &str) {
